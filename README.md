@@ -13,10 +13,8 @@ Sports Event Aggregator is an intelligent platform that discovers and aggregates
 
 ## 🎥 Demo Video
 
-> *Note:* Video placeholder - Add your demo video here
+[Click here to watch the demo]()
 
-
-[Your demo video will be embedded here]
 
 
 ## ✨ Features
