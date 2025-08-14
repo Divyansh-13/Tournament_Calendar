@@ -12,15 +12,12 @@ import re
 app = Flask(__name__)
 CORS(app)
 
-# Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-# Configuration
 GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
 GEMINI_API_URL= 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent'
 
-# Check if API key is properly set
 if GEMINI_API_KEY == 'GEMINI_API_KEY':
     logger.warning("Gemini API key not properly configured. Using mock data mode.")
 
@@ -157,16 +154,16 @@ Give real time data in Indian time zone for today's date: {self.current_date}. F
                     content = result['candidates'][0]['content']['parts'][0]['text']
                     logger.info(f"Received content from Gemini: {content[:200]}...")
                     
-                    # Try to extract JSON from the response
+                    
                     try:
-                        # Clean the content and find JSON
+                    
                         content = content.strip()
                         
-                        # Look for JSON array patterns
+                
                         json_patterns = [
-                            r'\[[\s\S]*?\]',  # Standard JSON array
-                            r'```json\s*(\[[\s\S]*?\])\s*```',  # JSON in code blocks
-                            r'```\s*(\[[\s\S]*?\])\s*```'  # JSON in generic code blocks
+                            r'\[[\s\S]*?\]',  
+                            r'```json\s*(\[[\s\S]*?\])\s*```',  
+                            r'```\s*(\[[\s\S]*?\])\s*```'  
                         ]
                         
                         tournaments = []
@@ -213,7 +210,6 @@ Give real time data in Indian time zone for today's date: {self.current_date}. F
             logger.error(f"Request exception: {str(e)}")
             return {'success': False, 'error': f'Network error: {str(e)}'}
 
-# Initialize the aggregator
 sports_aggregator = SportsAggregator()
 
 @app.route('/')
@@ -227,13 +223,11 @@ def get_tournaments(sport):
     try:
         logger.info(f"Received request for {sport} tournaments")
         
-        # Create prompt for the specific sport
+
         prompt = sports_aggregator.create_gemini_prompt(sport.capitalize())
         logger.debug(f"Created prompt for {sport}")
         
-        # Query Gemini API or use mock data
         if GEMINI_API_KEY == 'your-gemini-api-key-here':
-            # Use mock data when API key is not configured
             mock_data = sports_aggregator.get_mock_data(sport)
             logger.info(f"Using mock data for {sport}: {len(mock_data)} tournaments")
             return jsonify({
@@ -245,7 +239,7 @@ def get_tournaments(sport):
                 'mode': 'mock'
             })
         else:
-            # Use real Gemini API
+    
             result = sports_aggregator.query_gemini(prompt)
             logger.info(f"Gemini API result: {result.get('success', False)}")
             
@@ -261,7 +255,7 @@ def get_tournaments(sport):
                     'mode': 'api'
                 })
             else:
-                # If API fails, fall back to mock data
+            
                 logger.warning(f"API failed for {sport}, using mock data. Error: {result.get('error')}")
                 mock_data = sports_aggregator.get_mock_data(sport)
                 return jsonify({
@@ -276,7 +270,7 @@ def get_tournaments(sport):
             
     except Exception as e:
         logger.error(f"Unexpected error in get_tournaments: {str(e)}", exc_info=True)
-        # Return mock data as last resort
+    
         try:
             mock_data = sports_aggregator.get_mock_data(sport)
             return jsonify({
